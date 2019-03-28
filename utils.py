@@ -241,6 +241,7 @@ def compute_predictions_and_gt(model, generator, steps,
     steps_done = 0
     all_outputs = None
     all_labels = None
+    all_frame_names = []
     all_ts = [[]]
 
     if verbose == 1:
@@ -279,7 +280,7 @@ def compute_predictions_and_gt(model, generator, steps,
         if verbose == 1:
             progbar.update(steps_done)
 
-    return all_outputs, all_labels
+    return all_outputs, all_labels, all_frame_names
 
 def hard_mining_entropy(k, nb_windows):
     """

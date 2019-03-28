@@ -21,15 +21,27 @@ from keras import backend as K
 from common_flags import FLAGS
 from constants import TEST_PHASE
 
+'''
+    Generates an annotated image where the network has localized the target
+    gate (if visible), on the training dataset.
+'''
+def gen_prediction_visualization(window, frame):
+    with open(os.path.join(FLAGS.train_dir, 'images', frame, '.png'), 'r') as
+        test_frame:
+        pass
 
-def compute_gate_localization_accuracy(predictions, ground_truth):
+
+def compute_gate_localization_accuracy(predictions, ground_truth, frame_names):
     valid = 0
     for i, pred in enumerate(predictions):
         pred_clean = np.zeros(len(pred))
         pred_clean[np.argmax(pred)] = 1.0
         if np.array_equal(pred_clean, ground_truth[i]):
             valid += 1
+        if pred_clean[0] != 1:
+            gen_prediction_visualization(np.argmax(pred), frame_names[i])
 
+    print(valid)
     return int(valid / len(ground_truth) * 100)
 
 def _main():
@@ -80,11 +92,12 @@ def _main():
     n_samples = test_generator.samples
     nb_batches = int(np.ceil(n_samples / FLAGS.batch_size))
 
-    predictions, ground_truth = utils.compute_predictions_and_gt(
+    predictions, ground_truth, frame_names = utils.compute_predictions_and_gt(
             model, test_generator, nb_batches, verbose = 1)
 
     localization_accuracy = compute_gate_localization_accuracy(predictions,
-                                                               ground_truth)
+                                                               ground_truth,
+                                                               frame_names)
 
     print("[*] Gate localization accuracy: {}%".format(localization_accuracy))
 
