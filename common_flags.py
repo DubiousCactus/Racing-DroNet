@@ -16,6 +16,7 @@ gflags.DEFINE_string('img_mode', "grayscale", 'Load mode for images, either '
                      'rgb or grayscale')
 
 # Training
+gflags.DEFINE_integer('gpus', 1, 'Number of GPUs to use for training')
 gflags.DEFINE_integer('batch_size', 32, 'Batch size in training and evaluation')
 gflags.DEFINE_integer('epochs', 100, 'Number of epochs for training')
 gflags.DEFINE_integer('log_rate', 10, 'Logging rate for full model (epochs)')

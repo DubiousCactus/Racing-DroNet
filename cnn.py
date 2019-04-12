@@ -5,8 +5,9 @@ import os
 import sys
 import gflags
 
-from keras.callbacks import ModelCheckpoint, TensorBoard
 from keras.metrics import categorical_accuracy, sparse_categorical_accuracy
+from keras.callbacks import ModelCheckpoint, TensorBoard
+from keras.utils.training_utils import multi_gpu_model
 from keras import optimizers
 from time import time
 
@@ -34,7 +35,19 @@ def getModel(img_width, img_height, img_channels, output_dim, weights_path,
     # Returns
        model: A Model instance.
     """
-    model = cnn_models.resnet8(img_width, img_height, img_channels, output_dim)
+    if FLAGS.gpus <= 1:
+        print("Training with 1 GPU")
+        with tf.device("/device:GPU:1"):
+            model = cnn_models.resnet8(img_width, img_height, img_channels, output_dim)
+    else:
+        print("Training with {} GPUs".format(FLAGS.gpus))
+        # we'll store a copy of the model on *every* GPU and then combine
+        # the results from the gradient updates on the CPU
+        with tf.device("/cpu:0"):
+            model = cnn_models.resnet8(img_width, img_height, img_channels, output_dim)
+            # make the model parallel
+            model = multi_gpu_model(model, gpus=FLAGS.gpus)
+
     if weights_path:
         try:
             print("Loaded model from {}".format(weights_path))
